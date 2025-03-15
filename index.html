@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Advanced Task Manager</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #4acaa8;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-bg: #f5f7fa;
+            --dark-bg: #2c3e50;
+            --text-color: #333;
+            --light-text: #f5f5f5;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+        }
+
+        header h1 i {
+            margin-right: 10px;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sidebar {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .sidebar h2 {
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
+            font-size: 1.3rem;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .filters {
+            margin-bottom: 2rem;
+        }
+
+        .filters ul {
+            list-style: none;
+        }
+
+        .filters li {
+            padding: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            border-radius: var(--border-radius);
+            margin-bottom: 0.3rem;
+        }
+
+        .filters li:hover {
+            background-color: var(--light-bg);
+        }
+
+        .filters li.active {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .filters li i {
+            margin-right: 10px;
+        }
+
+        .task-view {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .top-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn i {
+            margin-right: 5px;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-github {
+            background-color: #333;
+        }
+
+        .btn-github:hover {
+            background-color: #1a1a1a;
+        }
+
+        .task-list {
+            margin-top: 1rem;
+        }
+
+        .task-item {
+            background-color: var(--light-bg);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .task-item:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-content h3 {
+            margin-bottom: 0.3rem;
+            font-size: 1.1rem;
+        }
+
+        .task-meta {
+            font-size: 0.8rem;
+            color: #666;
+            display: flex;
+            align-items: center;
+        }
+
+        .task-meta span {
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .task-meta i {
+            margin-right: 5px;
+        }
+
+        .task-actions {
+            display: flex;
+        }
+
+        .task-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-left: 0.5rem;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .task-actions button:hover {
+            color: var(--primary-color);
+        }
+
+        .task-actions button.delete:hover {
+            color: var(--danger-color);
+        }
+
+        .priority-high {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .priority-medium {
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .priority-low {
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .task-complete {
+            background-color: #f1f1f1;
+            opacity: 0.7;
+        }
+
+        .task-complete .task-content h3 {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h2 {
+            color: var(--secondary-color);
+            font-size: 1.4rem;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                flex-direction: column;
+            }
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        /* Notification styles */
+        .notification-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1001;
+        }
+
+        .notification {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            min-width: 300px;
+            animation: slide-in 0.3s ease;
+        }
+
+        @keyframes slide-in {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .notification.success {
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .notification.warning {
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .notification.error {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        /* GitHub section */
+        .github-sync {
+            margin-top: 2rem;
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .github-sync h2 {
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
+            font-size: 1.3rem;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .repo-list {
+            margin-top: 1rem;
+        }
+
+        .repo-item {
+            padding: 0.7rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .repo-item:hover {
+            background-color: var(--light-bg);
+        }
+
+        .repo-item.connected {
+            border-left: 4px solid var(--accent-color);
+        }
+
+        /* Dark mode */
+        .dark-mode {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+        }
+
+        .dark-mode .sidebar,
+        .dark-mode .task-view,
+        .dark-mode .github-sync,
+        .dark-mode .modal-content {
+            background-color: #34495e;
+            color: var(--light-text);
+        }
+
+        .dark-mode .task-item {
+            background-color: #2c3e50;
+        }
+
+        .dark-mode .task-meta {
+            color: #ccc;
+        }
+
+        .dark-mode .form-control {
+            background-color: #2c3e50;
+            border-color: #444;
+            color: var(--light-text);
+        }
+
+        .dark-mode .task-complete {
+            background-color: #2a363f;
+        }
+
+        /* Loading spinner */
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid var(--accent-color);
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Toggle switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Badge styles */
+        .badge {
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .badge-high {
+            background-color: var(--danger-color);
+        }
+
+        .badge-medium {
+            background-color: var(--warning-color);
+        }
+
+        .badge-low {
+            background-color: var(--accent-color);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-tasks"></i> TaskFlow</h1>
+            <div class="header-controls">
+                <button id="github-login" class="btn btn-github">
+                    <i class="fab fa-github"></i> Connect GitHub
+                </button>
+                <label class="switch ml-3">
+                    <input type="checkbox" id="darkModeToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </header>
+
+        <main>
+            <aside class="sidebar">
+                <div class="filters">
+                    <h2>Filters</h2>
+                    <ul>
+                        <li class="active"><i class="fas fa-inbox"></i> All Tasks</li>
+                        <li><i class="fas fa-calendar-day"></i> Today</li>
+                        <li><i class="fas fa-calendar-week"></i> This Week</li>
+                        <li><i class="fas fa-calendar"></i> Upcoming</li>
+                        <li><i class="fas fa-check-circle"></i> Completed</li>
+                        <li><i class="fas fa-exclamation-circle"></i> Priority</li>
+                    </ul>
+                </div>
+
+                <div class="tags">
+                    <h2>Tags</h2>
+                    <div class="tag-list">
+                        <span class="badge" style="background-color: #3498db;">Work</span>
+                        <span class="badge" style="background-color: #9b59b6;">Personal</span>
+                        <span class="badge" style="background-color: #2ecc71;">Home</span>
+                        <span class="badge" style="background-color: #e67e22;">Study</span>
+                    </div>
+                </div>
+            </aside>
+
+            <section class="task-view">
+                <div class="top-controls">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search tasks...">
+                    </div>
+                    <button id="add-task" class="btn">
+                        <i class="fas fa-plus"></i> Add Task
+                    </button>
+                </div>
+
+                <div class="task-list">
+                    <div class="task-item priority-high">
+                        <div class="task-content">
+                            <h3>Complete project proposal</h3>
+                            <div class="task-meta">
+                                <span><i class="far fa-calendar"></i> Due: Mar 20, 2025</span>
+                                <span><i class="fas fa-tag"></i> Work</span>
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="complete"><i class="far fa-check-circle"></i></button>
+                            <button class="edit"><i class="far fa-edit"></i></button>
+                            <button class="delete"><i class="far fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="task-item priority-medium">
+                        <div class="task-content">
+                            <h3>Review code for new feature</h3>
+                            <div class="task-meta">
+                                <span><i class="far fa-calendar"></i> Due: Mar 17, 2025</span>
+                                <span><i class="fas fa-tag"></i> Work</span>
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="complete"><i class="far fa-check-circle"></i></button>
+                            <button class="edit"><i class="far fa-edit"></i></button>
+                            <button class="delete"><i class="far fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="task-item priority-low task-complete">
+                        <div class="task-content">
+                            <h3>Schedule team meeting</h3>
+                            <div class="task-meta">
+                                <span><i class="far fa-calendar"></i> Due: Mar 15, 2025</span>
+                                <span><i class="fas fa-tag"></i> Work</span>
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="complete"><i class="fas fa-check-circle"></i></button>
+                            <button class="edit"><i class="far fa-edit"></i></button>
+                            <button class="delete"><i class="far fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <section class="github-sync">
+            <h2>GitHub Integration</h2>
+            <p>Connect your GitHub repositories to create tasks from issues and track your progress.</p>
+            <div class="repo-list">
+                <div class="repo-item connected">
+                    <div>
+                        <strong>username/project-repo</strong>
+                        <span>5 open issues</span>
+                    </div>
+                    <button class="btn btn-sm">Import Issues</button>
+                </div>
+                <div class="repo-item">
+                    <div>
+                        <strong>username/another-repo</strong>
+                        <span>12 open issues</span>
+                    </div>
+                    <button class="btn btn-sm">Import Issues</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div id="task-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Task</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="task-form">
+                <div class="form-group">
+                    <label for="task-title">Title</label>
+                    <input type="text" id="task-title" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="task-description">Description</label>
+                    <textarea id="task-description" class="form-control"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="task-due-date">Due Date</label>
+                        <input type="date" id="task-due-date" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="task-priority">Priority</label>
+                        <select id="task-priority" class="form-control">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="task-tags">Tags</label>
+                    <select id="task-tags" class="form-control">
+                        <option value="work">Work</option>
+                        <option value="personal">Personal</option>
+                        <option value="home">Home</option>
+                        <option value="study">Study</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="task-reminder"> Set reminder
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-danger" id="cancel-task">Cancel</button>
+                    <button type="submit" class="btn">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notification-container"></div>
+
+    <script>
+        // Task Manager Class
+        class TaskManager {
+            constructor() {
+                this.tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+                this.currentFilter = 'all';
+                this.currentId = this.tasks.length > 0 
+                    ? Math.max(...this.tasks.map(task => task.id)) + 1 
+                    : 1;
+                this.init();
+            }
+
+            init() {
+                this.renderTasks();
+                this.setupEventListeners();
+                this.checkReminders();
+            }
+
+            setupEventListeners() {
+                // Add task button
+                document.getElementById('add-task').addEventListener('click', () => this.openTaskModal());
+                
+                // Close modal button
+                document.querySelector('.close-modal').addEventListener('click', () => this.closeTaskModal());
+                
+                // Cancel button in modal
+                document.getElementById('cancel-task').addEventListener('click', () => this.closeTaskModal());
+                
+                // Task form submission
+                document.getElementById('task-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.saveTask();
+                });
+                
+                // Filter clicks
+                document.querySelectorAll('.filters li').forEach(filter => {
+                    filter.addEventListener('click', (e) => {
+                        document.querySelector('.filters li.active').classList.remove('active');
+                        e.currentTarget.classList.add('active');
+                        this.setFilter(e.currentTarget.textContent.trim().toLowerCase());
+                    });
+                });
+                
+                // Search input
+                const searchInput = document.querySelector('.search-bar input');
+                searchInput.addEventListener('input', () => {
+                    this.filterTasks(searchInput.value);
+                });
+                
+                // Dark mode toggle
+                document.getElementById('darkModeToggle').addEventListener('change', (e) => {
+                    document.body.classList.toggle('dark-mode', e.target.checked);
+                    localStorage.setItem('darkMode', e.target.checked);
+                });
+                
+                // Task actions (complete, edit, delete)
+                document.querySelector('.task-list').addEventListener('click', (e) => {
+                    if (e.target.closest('.complete')) {
+                        const taskId = parseInt(e.target.closest('.task-item').dataset.id);
+                        this.toggleComplete(taskId);
+                    } else if (e.target.closest('.edit')) {
+                        const taskId = parseInt(e.target.closest('.task-item').dataset.id);
+                        this.editTask(taskId);
+                    } else if (e.target.closest('.delete')) {
+                        const taskId = parseInt(e.target.closest('.task-item').dataset.id);
+                        this.deleteTask(taskId);
+                    }
+                });
+                
+                // GitHub login
+                document.getElementById('github-login').addEventListener('click', () => {
+                    this.connectGitHub();
+                });
+                
+                // Check for dark mode preference
+                const darkMode = localStorage.getItem('darkMode') === 'true';
+                document.getElementById('darkModeToggle').checked = darkMode;
+                if (darkMode) {
+                    document.body.classList.add('dark-mode');
+                }
+            }
+
+            renderTasks() {
+                const taskList = document.querySelector('.task-list');
+                taskList.innerHTML = '';
+                
+                const filteredTasks = this.getFilteredTasks();
+                
+                if (filteredTasks.length === 0) {
+                    taskList.innerHTML = '<p class="text-center">No tasks found.</p>';
+                    return;
+                }
+                
+                filteredTasks.forEach(task => {
+                    const taskElement = document.createElement('div');
+                    taskElement.className = `task-item priority-${task.priority}`;
+                    if (task.completed) {
+                        taskElement.classList.add('task-complete');
+                    }
+                    taskElement.dataset.id = task.id;
+                    
+                    taskElement.innerHTML = `
+                        <div class="task-content">
+                            <h3>${task.title}</h3>
+                            <div class="task-meta">
+                                <span><i class="far fa-calendar"></i> Due: ${this.formatDate(task.dueDate)}</span>
+                                <span><i class="fas fa-tag"></i> ${task.tag}</span>
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="complete"><i class="${task.completed ? 'fas' : 'far'} fa-check-circle"></i></button>
+                            <button class="edit"><i class="far fa-edit"></i></button>
+                            <button class="delete"><i class="far fa-trash-alt"></i></button>
+                        </div>
+                    `;
+                    
+                    taskList.appendChild(taskElement);
+                });
+            }
+
+            getFilteredTasks() {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const endOfWeek = new Date();
+                endOfWeek.setDate(endOfWeek.getDate() + (7 - endOfWeek.getDay()));
+                
+                switch (this.currentFilter) {
+                    case 'today':
+                        return this.tasks.filter(task => {
+                            const taskDate = new Date(task.dueDate);
+                            return taskDate.setHours(0, 0, 0, 0) === today.getTime();
+                        });
+                    case 'this week':
+                        return this.tasks.filter(task => {
+                            const taskDate = new Date(task.dueDate);
+                            return taskDate >= today && taskDate <= endOfWeek;
+                        });
+                    case 'upcoming':
+                        return this.tasks.filter(task => {
+                            const taskDate = new Date(task.dueDate);
+                            return taskDate > today;
+                        });
+                    case 'completed':
+                        return this.tasks.filter(task => task.completed);
+                    case 'priority':
+                        return this.tasks.filter(task => task.priority === 'high');
+                    default:
+                        return [...this.tasks];
+                }
+            }
+
+            filterTasks(searchTerm) {
+                if (!searchTerm) {
+                    this.renderTasks();
+                    return;
+                }
+                
+                const taskList = document.querySelector('.task-list');
+                taskList.innerHTML = '';
+                
+                const filteredTasks = this.getFilteredTasks().filter(task => 
+                    task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    task.description.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+                
+                if (filteredTasks.length === 0) {
+                    taskList.innerHTML = '<p class="text-center">No matching tasks found.</p>';
+                    return;
+                }
+                
+                filteredTasks.forEach(task => {
+                    // Same logic as in renderTasks to create task elements
+                    const taskElement = document.createElement('div');
+                    taskElement.className = `task-item priority-${task.priority}`;
+                    if (task.completed) {
+                        taskElement.classList.add('task-complete');
+                    }
+                    taskElement.dataset.id = task.id;
+                    
+                    taskElement.innerHTML = `
+                        <div class="task-content">
+                            <h3>${task.title}</h3>
+                            <div class="task-meta">
+                                <span><i class="far fa-calendar"></i> Due: ${this.formatDate(task.dueDate)}</span>
+                                <span><i class="fas fa-tag"></i> ${task.tag}</span>
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <button class="complete"><i class="${task.completed ? 'fas' : 'far'} fa-check-circle"></i></button>
+                            <button class="edit"><i class="far fa-edit"></i></button>
+                            <button class="delete"><i class="far fa-trash-alt"></i></button>
+                        </div>
+                    `;
+                    
+                    taskList.appendChild(taskElement);
+                });
+            }
+
+            openTaskModal(taskId = null) {
+                const modal = document.getElementById('task-modal');
+                const modalTitle = modal.querySelector('.modal-header h2');
+                const form = document.getElementById('task-form');
+                
+                // Reset form
+                form.reset();
+                
+                if (taskId) {
+                    // Edit mode
+                    modalTitle.textContent = 'Edit Task';
+                    const task = this.tasks.find(t => t.id === taskId);
+                    if (task) {
+                        document.getElementById('task-title').value = task.title;
+                        document.getElementById('task-description').value = task.description;
+                        document.getElementById('task-due-date').value = task.dueDate;
+                        document.getElementById('task-priority').value = task.priority;
+                        document.getElementById('task-tags').value = task.tag;
+                        document.getElementById('task-reminder').checked = task.reminder;
+                        
+                        // Store the task ID being edited
+                        form.dataset.editId = taskId;
+                    }
+                } else {
+                    // Add mode
+                    modalTitle.textContent = 'Add New Task';
+                    delete form.dataset.editId;
+                    
+                    // Set default due date (tomorrow)
+                    const tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    document.getElementById('task-due-date').value = this.formatDateForInput(tomorrow);
+                }
+                
+                modal.style.display = 'flex';
+            }
+
+            closeTaskModal() {
+                const modal = document.getElementById('task-modal');
+                modal.style.display = 'none';
+            }
+
+            saveTask() {
+                const form = document.getElementById('task-form');
+                const title = document.getElementById('task-title').value;
+                const description = document.getElementById('task-description').value;
+                const dueDate = document.getElementById('task-due-date').value;
+                const priority = document.getElementById('task-priority').value;
+                const tag = document.getElementById('task-tags').value;
+                const reminder = document.getElementById('task-reminder').checked;
+                
+                // Check if we're editing or adding
+                const editId = form.dataset.editId;
+                
+                if (editId) {
+                    // Update existing task
+                    const taskIndex = this.tasks.findIndex(t => t.id === parseInt(editId));
+                    if (taskIndex !== -1) {
+                        this.tasks[taskIndex] = {
+                            ...this.tasks[taskIndex],
+                            title,
+                            description,
+                            dueDate,
+                            priority,
+                            tag,
+                            reminder
+                        };
+                        this.showNotification('Task updated successfully!', 'success');
+                    }
+                } else {
+                    // Add new task
+                    const newTask = {
+                        id: this.currentId++,
+                        title,
+                        description,
+                        created: new Date().toISOString(),
+                        dueDate,
+                        priority,
+                        tag,
+                        completed: false,
+                        reminder
+                    };
+                    
+                    this.tasks.push(newTask);
+                    this.showNotification('Task added successfully!', 'success');
+                }
+                
+                // Save tasks to localStorage and refresh UI
+                this.saveTasks();
+                this.renderTasks();
+                this.closeTaskModal();
+            }
+
+            editTask(taskId) {
+                this.openTaskModal(taskId);
+            }
+
+            deleteTask(taskId) {
+                if (confirm('Are you sure you want to delete this task?')) {
+                    this.tasks = this.tasks.filter(task => task.id !== taskId);
+                    this.saveTasks();
+                    this.renderTasks();
+                    this.showNotification('Task deleted successfully!', 'success');
+                }
+            }
+
+            toggleComplete(taskId) {
+                const taskIndex = this.tasks.findIndex(task => task.id === taskId);
+                if (taskIndex !== -1) {
+                    this.tasks[taskIndex].completed = !this.tasks[taskIndex].completed;
+                    this.saveTasks();
+                    this.renderTasks();
+                    
+                    const status = this.tasks[taskIndex].completed ? 'completed' : 'reopened';
+                    this.showNotification(`Task ${status}!`, 'success');
+                }
+            }
+
+            setFilter(filter) {
+                this.currentFilter = filter;
+                this.renderTasks();
+            }
+
+            formatDate(dateString) {
+                if (!dateString) return 'No date';
+                
+                const date = new Date(dateString);
+                const options = { month: 'short', day: 'numeric', year: 'numeric' };
+                return date.toLocaleDateString('en-US', options);
+            }
+
+            formatDateForInput(date) {
+                return date.toISOString().split('T')[0];
+            }
+
+            saveTasks() {
+                localStorage.setItem('tasks', JSON.stringify(this.tasks));
+            }
+
+            showNotification(message, type = 'success') {
+                const container = document.getElementById('notification-container');
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                
+                let icon;
+                switch (type) {
+                    case 'success':
+                        icon = 'fas fa-check-circle';
+                        break;
+                    case 'warning':
+                        icon = 'fas fa-exclamation-triangle';
+                        break;
+                    case 'error':
+                        icon = 'fas fa-times-circle';
+                        break;
+                    default:
+                        icon = 'fas fa-info-circle';
+                }
+                
+                notification.innerHTML = `
+                    <i class="${icon}"></i>
+                    <div>${message}</div>
+                `;
+                
+                container.appendChild(notification);
+                
+                // Remove notification after 5 seconds
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    setTimeout(() => {
+                        container.removeChild(notification);
+                    }, 300);
+                }, 5000);
+            }
+
+            checkReminders() {
+                const now = new Date();
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                tomorrow.setHours(0, 0, 0, 0);
+                
+                // Check for tasks due tomorrow
+                const dueTomorrow = this.tasks.filter(task => {
+                    if (!task.reminder || task.completed) return false;
+                    
+                    const dueDate = new Date(task.dueDate);
+                    dueDate.setHours(0, 0, 0, 0);
+                    
+                    return dueDate.getTime() === tomorrow.getTime();
+                });
+                
+                // Show notifications for tasks due tomorrow
+                dueTomorrow.forEach(task => {
+                    this.showNotification(`Reminder: "${task.title}" is due tomorrow!`, 'warning');
+                });
+                
+                // Setup next check (every hour)
+                setTimeout(() => this.checkReminders(), 3600000);
+            }
+
+            connectGitHub() {
+                // This would normally use OAuth authentication
+                // For demonstration, we'll simulate a GitHub connection
+                
+                const btn = document.getElementById('github-login');
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting...';
+                
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fab fa-github"></i> Connected';
+                    btn.classList.add('btn-success');
+                    btn.disabled = true;
+                    
+                    this.showNotification('Successfully connected to GitHub!', 'success');
+                    this.fetchGitHubIssues();
+                }, 2000);
+            }
+
+            fetchGitHubIssues() {
+                // Simulate fetching GitHub issues
+                const repoItems = document.querySelectorAll('.repo-item');
+                
+                repoItems.forEach(item => {
+                    const btn = item.querySelector('button');
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = 'Import Issues';
+                        item.classList.add('connected');
+                    }, 1500);
+                });
+            }
+
+            // Method to import GitHub issues as tasks
+            importGitHubIssues(repo, issues) {
+                // For demo purposes, we'll add sample GitHub issues
+                const sampleIssues = [
+                    { title: 'Fix login bug', body: 'Users cannot login after password reset', labels: ['bug', 'high-priority'] },
+                    { title: 'Add dark mode', body: 'Implement dark mode across all pages', labels: ['enhancement'] },
+                    { title: 'Improve mobile layout', body: 'Make application more responsive on mobile devices', labels: ['enhancement'] }
+                ];
+                
+                sampleIssues.forEach(issue => {
+                    const priority = issue.labels.includes('high-priority') ? 'high' : 'medium';
+                    
+                    const newTask = {
+                        id: this.currentId++,
+                        title: issue.title,
+                        description: `[GitHub Issue from ${repo}] ${issue.body}`,
+                        created: new Date().toISOString(),
+                        dueDate: this.formatDateForInput(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)), // Due in 1 week
+                        priority,
+                        tag: 'work',
+                        completed: false,
+                        reminder: true,
+                        githubIssue: true
+                    };
+                    
+                    this.tasks.push(newTask);
+                });
+                
+                this.saveTasks();
+                this.renderTasks();
+                this.showNotification(`Imported ${sampleIssues.length} issues from GitHub!`, 'success');
+            }
+        }
+
+        // Service Worker Registration for Notifications
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                        
+                        // Request notification permission
+                        if ('Notification' in window) {
+                            Notification.requestPermission();
+                        }
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // Initialize Task Manager when DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const taskManager = new TaskManager();
+            
+            // Global access for debugging
+            window.taskManager = taskManager;
+        });
+    </script>
+</body>
+</html>
